@@ -1,0 +1,1159 @@
+<!doctype html>
+<html lang="en" data-theme="dark">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <meta name="theme-color" content="#141413" />
+  <title>Eisenhower · Task Matrix</title>
+  <link rel="icon" type="image/svg+xml" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24'%3E%3Crect x='2' y='2' width='9' height='9' rx='1.5' fill='%23f87171'/%3E%3Crect x='13' y='2' width='9' height='9' rx='1.5' fill='%2374b044'/%3E%3Crect x='2' y='13' width='9' height='9' rx='1.5' fill='%23f59e0b'/%3E%3Crect x='13' y='13' width='9' height='9' rx='1.5' fill='%237a7668'/%3E%3C/svg%3E" />
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet" />
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+    :root {
+      --bg-950: #141413;
+      --bg-900: #1c1c1a;
+      --bg-800: #2a2926;
+      --bg-700: #3d3b36;
+      --bg-600: #565349;
+      --t-500: #7a7668;
+      --t-400: #a39e90;
+      --t-300: #cdc8b8;
+      --t-200: #e0dbd0;
+      --t-100: #eae6dc;
+      --brand: #74b044;
+      --brand-light: #8cc75c;
+      --brand-dark: #679b3d;
+      --red: #f87171;
+      --amber: #f59e0b;
+      --purple: #8b5cf6;
+      --cyan: #34d399;
+      --sidebar-w: 220px;
+      --shadow: 0 4px 20px rgba(0,0,0,0.45);
+    }
+
+    [data-theme="light"] {
+      --bg-950: #f1f5f2;
+      --bg-900: #f8fcf9;
+      --bg-800: #e3ede6;
+      --bg-700: #d3dfd6;
+      --bg-600: #bccebf;
+      --t-500: #7d8f7f;
+      --t-400: #5e6e60;
+      --t-300: #424e44;
+      --t-200: #2b3a2d;
+      --t-100: #192119;
+      --shadow: 0 4px 20px rgba(0,0,0,0.12);
+    }
+    [data-theme="light"] #toast { background: #192119; color: #eae6dc; }
+
+    html, body {
+      height: 100%;
+      font-family: "Inter", -apple-system, BlinkMacSystemFont, sans-serif;
+      background: var(--bg-950);
+      color: var(--t-100);
+      font-size: 14px;
+      line-height: 1.5;
+    }
+
+    #app { display: flex; height: 100vh; overflow: hidden; }
+
+    /* ── SIDEBAR ── */
+    #sidebar {
+      width: var(--sidebar-w);
+      min-width: var(--sidebar-w);
+      background: var(--bg-900);
+      border-right: 1px solid var(--bg-800);
+      display: flex;
+      flex-direction: column;
+      overflow: hidden;
+      z-index: 10;
+    }
+
+    .sidebar-logo {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      padding: 16px;
+      border-bottom: 1px solid var(--bg-800);
+    }
+    .sidebar-logo svg { width: 24px; height: 24px; flex-shrink: 0; }
+    .logo-text { flex: 1; min-width: 0; }
+    .logo-title { font-size: 15px; font-weight: 700; color: var(--brand); letter-spacing: -0.4px; line-height: 1.1; }
+    .logo-sub { font-size: 10px; color: var(--t-500); letter-spacing: 0.5px; text-transform: uppercase; }
+
+    .theme-btn {
+      background: transparent; border: none; cursor: pointer;
+      padding: 6px; border-radius: 7px; color: var(--t-500);
+      display: flex; align-items: center;
+      transition: background 0.12s, color 0.12s; flex-shrink: 0;
+    }
+    .theme-btn:hover { background: var(--bg-800); color: var(--t-200); }
+    .theme-btn svg { width: 16px; height: 16px; }
+
+    #sidebar nav {
+      flex: 1; padding: 10px 8px;
+      display: flex; flex-direction: column; gap: 2px; overflow-y: auto;
+    }
+
+    .nav-item {
+      display: flex; align-items: center; gap: 10px;
+      padding: 9px 10px; border-radius: 8px; cursor: pointer;
+      border: none; background: transparent; color: var(--t-400);
+      font-family: inherit; font-size: 13px; font-weight: 500;
+      width: 100%; text-align: left;
+      transition: background 0.12s, color 0.12s;
+    }
+    .nav-item:hover { background: var(--bg-800); color: var(--t-200); }
+    .nav-item.active { background: color-mix(in srgb, var(--brand) 14%, transparent); color: var(--brand-light); }
+    [data-theme="light"] .nav-item.active { color: var(--brand-dark); }
+    .nav-item svg { width: 15px; height: 15px; flex-shrink: 0; opacity: 0.8; }
+    .nav-item.active svg { opacity: 1; }
+    .nav-sep { height: 1px; background: var(--bg-800); margin: 6px 10px; }
+
+    .sidebar-stats {
+      padding: 12px 16px;
+      border-top: 1px solid var(--bg-800);
+      display: flex; flex-direction: column; gap: 5px;
+    }
+    .sb-stat { display: flex; justify-content: space-between; align-items: center; }
+    .sb-stat-lbl { font-size: 11px; color: var(--t-500); }
+    .sb-stat-val { font-size: 12px; font-weight: 600; color: var(--t-300); }
+
+    .sidebar-footer { padding: 10px 16px; border-top: 1px solid var(--bg-800); }
+    .sb-date { font-size: 11.5px; font-weight: 500; color: var(--t-400); }
+    .sb-sub { font-size: 10px; color: var(--t-500); margin-top: 1px; }
+
+    /* ── MAIN ── */
+    #main {
+      flex: 1; overflow: hidden;
+      display: flex; flex-direction: column;
+      background: var(--bg-950);
+    }
+
+    /* ── MATRIX HEADER ── */
+    .matrix-header {
+      padding: 16px 20px 14px;
+      display: flex; align-items: center; justify-content: space-between;
+      flex-shrink: 0; border-bottom: 1px solid var(--bg-800);
+      flex-wrap: wrap; gap: 10px;
+    }
+    .matrix-header h1 { font-size: 18px; font-weight: 700; color: var(--t-100); letter-spacing: -0.4px; }
+    .matrix-header p { font-size: 11.5px; color: var(--t-500); margin-top: 1px; }
+    .header-actions { display: flex; gap: 7px; flex-wrap: wrap; }
+
+    /* ── MATRIX GRID ── */
+    .matrix-grid {
+      flex: 1;
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      grid-template-rows: 1fr 1fr;
+      gap: 10px;
+      padding: 10px;
+      overflow: hidden;
+    }
+
+    /* ── QUADRANT ── */
+    .quadrant {
+      background: var(--bg-900);
+      border: 1.5px solid var(--bg-800);
+      border-radius: 12px;
+      display: flex; flex-direction: column;
+      overflow: hidden;
+      transition: border-color 0.15s, background 0.15s;
+      --q-color: var(--brand);
+    }
+    .quadrant.drag-over {
+      border-color: var(--q-color);
+      background: color-mix(in srgb, var(--q-color) 5%, var(--bg-900));
+    }
+
+    .q-header {
+      padding: 10px 12px 9px;
+      display: flex; align-items: center; justify-content: space-between;
+      flex-shrink: 0; border-bottom: 1px solid var(--bg-800);
+    }
+    .q-title-group { display: flex; align-items: center; gap: 8px; }
+    .q-dot { width: 8px; height: 8px; border-radius: 50%; flex-shrink: 0; background: var(--q-color); }
+    .q-name { font-size: 11px; font-weight: 700; letter-spacing: 0.4px; text-transform: uppercase; color: var(--q-color); }
+    .q-label { font-size: 10.5px; color: var(--t-500); margin-top: 1px; }
+    .q-count {
+      font-size: 11px; font-weight: 600;
+      padding: 2px 7px; border-radius: 10px;
+      background: var(--bg-800); color: var(--t-500);
+    }
+
+    .q-body {
+      flex: 1; overflow-y: auto;
+      padding: 7px; display: flex; flex-direction: column; gap: 5px;
+      min-height: 0;
+    }
+
+    /* ── TASK CARD ── */
+    .task-card {
+      background: var(--bg-800);
+      border: 1px solid var(--bg-700);
+      border-radius: 9px;
+      padding: 9px 11px;
+      cursor: grab;
+      transition: border-color 0.12s, box-shadow 0.12s, opacity 0.15s;
+      user-select: none;
+    }
+    .task-card:hover { border-color: var(--bg-600); box-shadow: 0 2px 8px rgba(0,0,0,0.2); }
+    .task-card:active { cursor: grabbing; }
+    .task-card.dragging { opacity: 0.35; }
+    .task-card.done .tc-title { text-decoration: line-through; color: var(--t-500); }
+    .task-card.done { opacity: 0.55; }
+
+    .tc-top { display: flex; align-items: flex-start; gap: 8px; }
+
+    .tc-check {
+      width: 15px; height: 15px; min-width: 15px;
+      border-radius: 4px; border: 1.5px solid var(--bg-600);
+      cursor: pointer; appearance: none; position: relative;
+      transition: background 0.12s, border-color 0.12s;
+      margin-top: 1px; flex-shrink: 0;
+      background: transparent;
+    }
+    .tc-check:checked {
+      background: var(--q-color);
+      border-color: var(--q-color);
+    }
+    .tc-check:checked::after {
+      content: "";
+      position: absolute; left: 2px; top: 0px;
+      width: 7px; height: 4px;
+      border: 2px solid #fff; border-top: none; border-right: none;
+      transform: rotate(-45deg);
+    }
+
+    .tc-body { flex: 1; min-width: 0; }
+    .tc-title { font-size: 12.5px; font-weight: 500; color: var(--t-200); line-height: 1.4; word-break: break-word; }
+    .tc-desc { font-size: 11px; color: var(--t-500); margin-top: 3px; line-height: 1.4; word-break: break-word; display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden; }
+    .tc-meta { display: flex; align-items: center; gap: 5px; margin-top: 6px; flex-wrap: wrap; }
+    .tc-cat { display: inline-flex; align-items: center; padding: 1px 7px; border-radius: 10px; font-size: 10px; font-weight: 600; }
+
+    .tc-actions { display: flex; gap: 1px; opacity: 0; transition: opacity 0.12s; margin-left: 3px; flex-shrink: 0; }
+    .task-card:hover .tc-actions { opacity: 1; }
+
+    .icon-btn {
+      background: transparent; border: none; cursor: pointer;
+      padding: 4px; border-radius: 5px; color: var(--t-500);
+      display: flex; align-items: center; justify-content: center;
+      transition: background 0.12s, color 0.12s;
+    }
+    .icon-btn:hover { background: var(--bg-700); color: var(--t-200); }
+    .icon-btn.del:hover { background: rgba(248,113,113,0.15); color: var(--red); }
+
+    /* ── DROP INDICATOR ── */
+    .drop-line {
+      height: 2px; border-radius: 1px; flex-shrink: 0;
+      background: var(--brand); margin: 1px 0;
+      pointer-events: none;
+    }
+
+    /* ── QUICK ADD ── */
+    .q-add { padding: 7px; flex-shrink: 0; border-top: 1px solid var(--bg-800); }
+    .q-add-row { display: flex; gap: 5px; }
+    .q-add-input {
+      flex: 1; background: var(--bg-800); border: 1px solid var(--bg-700);
+      border-radius: 7px; padding: 6px 10px; font-family: inherit;
+      font-size: 12.5px; color: var(--t-100); outline: none;
+      transition: border-color 0.15s;
+    }
+    .q-add-input::placeholder { color: var(--t-500); }
+    .q-add-input:focus { border-color: var(--q-color); }
+    .q-add-btn {
+      background: var(--bg-700); border: 1px solid var(--bg-600);
+      border-radius: 7px; padding: 6px 9px; cursor: pointer; color: var(--t-400);
+      display: flex; align-items: center; transition: background 0.12s, color 0.12s;
+      flex-shrink: 0;
+    }
+    .q-add-btn:hover { background: var(--brand); color: #fff; border-color: var(--brand); }
+
+    /* ── EMPTY STATE ── */
+    .q-empty { text-align: center; padding: 20px 10px; color: var(--t-500); }
+    .q-empty svg { width: 26px; height: 26px; margin: 0 auto 7px; opacity: 0.2; display: block; }
+    .q-empty p { font-size: 11.5px; line-height: 1.5; }
+
+    /* ── ALL TASKS VIEW ── */
+    #main.list-mode { overflow-y: auto; }
+    .list-view { padding: 24px; max-width: 900px; width: 100%; margin: 0 auto; }
+    .list-view-header { margin-bottom: 20px; }
+    .list-view-header h1 { font-size: 20px; font-weight: 700; color: var(--t-100); letter-spacing: -0.4px; }
+    .list-view-header p { font-size: 12px; color: var(--t-500); margin-top: 2px; }
+
+    .filter-bar { display: flex; gap: 8px; flex-wrap: wrap; margin-bottom: 16px; align-items: center; }
+    .search-wrap { position: relative; flex: 1; min-width: 160px; max-width: 280px; }
+    .search-wrap svg { position: absolute; left: 10px; top: 50%; transform: translateY(-50%); color: var(--t-500); pointer-events: none; }
+    .search-input {
+      width: 100%; background: var(--bg-800); border: 1px solid var(--bg-700);
+      border-radius: 8px; padding: 8px 12px 8px 32px; font-family: inherit;
+      font-size: 13px; color: var(--t-100); outline: none; transition: border-color 0.15s;
+    }
+    .search-input::placeholder { color: var(--t-500); }
+    .search-input:focus { border-color: var(--brand); }
+
+    .fs {
+      background: var(--bg-800); border: 1px solid var(--bg-700);
+      border-radius: 8px; padding: 8px 28px 8px 10px; font-family: inherit;
+      font-size: 13px; color: var(--t-300); outline: none; cursor: pointer;
+      appearance: none;
+      background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 24 24' fill='none' stroke='%237a7668' stroke-width='2'%3E%3Cpath d='m6 9 6 6 6-6'/%3E%3C/svg%3E");
+      background-repeat: no-repeat; background-position: right 8px center;
+      transition: border-color 0.12s;
+    }
+    .fs:focus { border-color: var(--brand); }
+    .fs option { background: var(--bg-800); color: var(--t-100); }
+
+    .tli {
+      display: flex; align-items: flex-start; gap: 10px;
+      padding: 11px 14px; background: var(--bg-900);
+      border: 1px solid var(--bg-800); border-radius: 10px;
+      margin-bottom: 7px; transition: border-color 0.12s;
+    }
+    .tli:hover { border-color: var(--bg-700); }
+    .tli.done .tli-title { text-decoration: line-through; color: var(--t-500); }
+    .tli.done { opacity: 0.65; }
+    .tli-check {
+      width: 16px; height: 16px; min-width: 16px;
+      border-radius: 4px; border: 1.5px solid var(--bg-600);
+      cursor: pointer; appearance: none; position: relative;
+      transition: background 0.12s, border-color 0.12s;
+      margin-top: 2px; flex-shrink: 0; background: transparent;
+    }
+    .tli-check:checked { background: var(--brand); border-color: var(--brand); }
+    .tli-check:checked::after {
+      content: ""; position: absolute; left: 2px; top: 0px;
+      width: 8px; height: 5px; border: 2px solid #fff;
+      border-top: none; border-right: none; transform: rotate(-45deg);
+    }
+    .tli-body { flex: 1; min-width: 0; }
+    .tli-title { font-size: 13.5px; font-weight: 500; color: var(--t-200); }
+    .tli-desc { font-size: 12px; color: var(--t-500); margin-top: 2px; line-height: 1.4; }
+    .tli-meta { display: flex; gap: 6px; align-items: center; margin-top: 6px; flex-wrap: wrap; }
+    .tli-q-badge { font-size: 10.5px; font-weight: 600; padding: 2px 8px; border-radius: 10px; }
+    .tli-cat { display: inline-flex; align-items: center; padding: 2px 8px; border-radius: 10px; font-size: 10.5px; font-weight: 600; }
+    .tli-actions { display: flex; gap: 2px; opacity: 0; transition: opacity 0.12s; flex-shrink: 0; }
+    .tli:hover .tli-actions { opacity: 1; }
+
+    /* ── BUTTONS ── */
+    .btn {
+      display: inline-flex; align-items: center; gap: 6px;
+      padding: 8px 16px; border-radius: 8px; font-family: inherit;
+      font-size: 13px; font-weight: 600; cursor: pointer; border: none;
+      transition: background 0.12s, color 0.12s; white-space: nowrap;
+    }
+    .btn-p { background: var(--brand); color: #fff; }
+    .btn-p:hover { background: var(--brand-light); }
+    .btn-s { background: var(--bg-800); color: var(--t-300); border: 1px solid var(--bg-700); }
+    .btn-s:hover { background: var(--bg-700); color: var(--t-100); }
+    .btn-danger { background: rgba(248,113,113,0.1); color: var(--red); border: 1px solid rgba(248,113,113,0.2); }
+    .btn-danger:hover { background: rgba(248,113,113,0.2); }
+
+    /* ── MODAL ── */
+    .modal-overlay {
+      position: fixed; inset: 0; background: rgba(0,0,0,0.65);
+      z-index: 100; display: flex; align-items: center; justify-content: center;
+      padding: 20px;
+    }
+    .modal {
+      background: var(--bg-900); border: 1px solid var(--bg-700);
+      border-radius: 14px; padding: 24px; width: 100%; max-width: 480px;
+      box-shadow: var(--shadow); max-height: 90vh; overflow-y: auto;
+    }
+    .modal-title { font-size: 16px; font-weight: 700; color: var(--t-100); margin-bottom: 20px; }
+    .fg { margin-bottom: 15px; }
+    .fl { display: block; font-size: 11px; font-weight: 600; color: var(--t-400); text-transform: uppercase; letter-spacing: 0.5px; margin-bottom: 6px; }
+    .fi, .fta {
+      width: 100%; background: var(--bg-800); border: 1px solid var(--bg-700);
+      border-radius: 8px; padding: 9px 12px; font-family: inherit;
+      font-size: 14px; color: var(--t-100); transition: border-color 0.15s; outline: none;
+    }
+    .fi::placeholder, .fta::placeholder { color: var(--t-500); }
+    .fi:focus, .fta:focus { border-color: var(--brand); }
+    .fta { resize: vertical; min-height: 80px; }
+
+    /* quadrant selector */
+    .q-selector { display: grid; grid-template-columns: 1fr 1fr; gap: 6px; }
+    .q-opt {
+      padding: 9px 11px; border-radius: 8px;
+      border: 1.5px solid var(--bg-700); background: var(--bg-800);
+      cursor: pointer; transition: border-color 0.12s, background 0.12s;
+    }
+    .q-opt:hover { border-color: var(--bg-600); }
+    .q-opt.selected {
+      border-color: var(--opt-color);
+      background: color-mix(in srgb, var(--opt-color) 10%, transparent);
+    }
+    .q-opt-name { font-size: 11.5px; font-weight: 700; color: var(--opt-color); }
+    .q-opt-desc { font-size: 10px; color: var(--t-500); margin-top: 2px; }
+
+    .modal-actions { display: flex; gap: 8px; margin-top: 4px; align-items: center; }
+
+    /* ── TOAST ── */
+    #toast {
+      position: fixed; bottom: 24px; right: 24px;
+      background: var(--bg-700); color: var(--t-100);
+      padding: 11px 18px; border-radius: 10px; font-size: 13px; font-weight: 500;
+      box-shadow: var(--shadow); opacity: 0; transform: translateY(8px);
+      transition: opacity 0.22s, transform 0.22s; pointer-events: none;
+      border-left: 3px solid var(--brand); max-width: 310px; z-index: 999;
+    }
+    #toast.show { opacity: 1; transform: translateY(0); }
+
+    /* ── SCROLLBAR ── */
+    ::-webkit-scrollbar { width: 5px; }
+    ::-webkit-scrollbar-track { background: transparent; }
+    ::-webkit-scrollbar-thumb { background: var(--bg-700); border-radius: 3px; }
+    ::-webkit-scrollbar-thumb:hover { background: var(--bg-600); }
+
+    /* ── RESPONSIVE ── */
+    @media (max-width: 820px) {
+      :root { --sidebar-w: 52px; }
+      .logo-text, .nav-item span, .sb-date, .sb-sub, .sidebar-stats { display: none; }
+      .sidebar-logo { justify-content: space-between; padding: 12px 8px; }
+    }
+    @media (max-width: 640px) {
+      .matrix-grid { grid-template-columns: 1fr; grid-template-rows: auto; overflow-y: auto; }
+      .matrix-grid .quadrant { min-height: 200px; }
+    }
+  </style>
+</head>
+<body>
+<div id="app">
+  <aside id="sidebar">
+    <div class="sidebar-logo">
+      <svg viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+        <rect x="2" y="2" width="9" height="9" rx="1.5" fill="#f87171"/>
+        <rect x="13" y="2" width="9" height="9" rx="1.5" fill="#74b044"/>
+        <rect x="2" y="13" width="9" height="9" rx="1.5" fill="#f59e0b"/>
+        <rect x="13" y="13" width="9" height="9" rx="1.5" fill="#7a7668"/>
+      </svg>
+      <div class="logo-text">
+        <div class="logo-title">Eisenhower</div>
+        <div class="logo-sub">Task Matrix</div>
+      </div>
+      <button class="theme-btn" id="theme-btn" onclick="toggleTheme()" title="Toggle theme"></button>
+    </div>
+    <nav id="nav"></nav>
+    <div class="sidebar-stats" id="sidebar-stats"></div>
+    <div class="sidebar-footer">
+      <div class="sb-date" id="sb-date"></div>
+      <div class="sb-sub">Eisenhower Matrix</div>
+    </div>
+  </aside>
+  <div id="main"></div>
+</div>
+
+<div id="toast"></div>
+<div id="modal-root"></div>
+
+<script>
+// ═══════════════════════════════════════════════════════════
+// DATA
+// ═══════════════════════════════════════════════════════════
+const SK = 'eisenhower_v1';
+
+const QUADRANTS = [
+  { id: 'q1', name: 'Do First',  label: 'Urgent + Important',         color: '#f87171', bg: 'rgba(248,113,113,0.12)',  hint: 'Critical tasks needing immediate action' },
+  { id: 'q2', name: 'Schedule',  label: 'Not Urgent + Important',     color: '#74b044', bg: 'rgba(116,176,68,0.12)',   hint: 'Important goals to plan and protect' },
+  { id: 'q3', name: 'Delegate',  label: 'Urgent + Not Important',     color: '#f59e0b', bg: 'rgba(245,158,11,0.12)',   hint: 'Interruptions that others can handle' },
+  { id: 'q4', name: 'Eliminate', label: 'Not Urgent + Not Important', color: '#7a7668', bg: 'rgba(122,118,104,0.12)',  hint: 'Time wasters to cut or ignore' },
+];
+
+const CATEGORIES = [
+  { id: '',         name: 'No category', color: '#7a7668', bg: 'rgba(122,118,104,0.18)' },
+  { id: 'work',     name: 'Work',        color: '#74b044', bg: 'rgba(116,176,68,0.18)'  },
+  { id: 'personal', name: 'Personal',    color: '#34d399', bg: 'rgba(52,211,153,0.18)'  },
+  { id: 'health',   name: 'Health',      color: '#f59e0b', bg: 'rgba(245,158,11,0.18)'  },
+  { id: 'learning', name: 'Learning',    color: '#8b5cf6', bg: 'rgba(139,92,246,0.18)'  },
+  { id: 'finance',  name: 'Finance',     color: '#b07cc5', bg: 'rgba(176,124,197,0.18)' },
+  { id: 'home',     name: 'Home',        color: '#f87171', bg: 'rgba(248,113,113,0.18)' },
+];
+
+const VIEWS = [
+  { id: 'matrix', label: 'Matrix',    icon: iGrid()  },
+  { id: 'tasks',  label: 'All Tasks', icon: iList()  },
+];
+
+// ═══════════════════════════════════════════════════════════
+// STATE
+// ═══════════════════════════════════════════════════════════
+const S = {
+  view: 'matrix',
+  tasks: [],
+  filter: { quadrant: '', category: '', search: '', showDone: true },
+};
+
+let drag = { id: null, srcQ: null };
+
+// ═══════════════════════════════════════════════════════════
+// STORAGE
+// ═══════════════════════════════════════════════════════════
+function load() {
+  try {
+    const d = JSON.parse(localStorage.getItem(SK) || '{}');
+    S.tasks = Array.isArray(d.tasks) ? d.tasks : [];
+  } catch (_) {}
+}
+
+function persist() {
+  try { localStorage.setItem(SK, JSON.stringify({ tasks: S.tasks })); } catch (_) {}
+}
+
+// ═══════════════════════════════════════════════════════════
+// THEME
+// ═══════════════════════════════════════════════════════════
+function loadTheme() {
+  document.documentElement.dataset.theme = localStorage.getItem('eisenhower_theme') || 'dark';
+}
+function toggleTheme() {
+  const next = document.documentElement.dataset.theme === 'dark' ? 'light' : 'dark';
+  document.documentElement.dataset.theme = next;
+  localStorage.setItem('eisenhower_theme', next);
+  renderThemeBtn();
+}
+function renderThemeBtn() {
+  const dark = document.documentElement.dataset.theme !== 'light';
+  const btn = document.getElementById('theme-btn');
+  if (btn) btn.innerHTML = dark ? iSun() : iMoon();
+}
+
+// ═══════════════════════════════════════════════════════════
+// UTILS
+// ═══════════════════════════════════════════════════════════
+const uid  = () => Date.now().toString(36) + Math.random().toString(36).slice(2, 5);
+const esc  = s => String(s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');
+const getQ = id => QUADRANTS.find(q => q.id === id) || QUADRANTS[0];
+const getC = id => CATEGORIES.find(c => c.id === id) || CATEGORIES[0];
+const tasksOf = qid => S.tasks.filter(t => t.quadrant === qid);
+
+function toast(msg) {
+  const el = document.getElementById('toast');
+  el.textContent = msg;
+  el.classList.add('show');
+  clearTimeout(el._t);
+  el._t = setTimeout(() => el.classList.remove('show'), 2600);
+}
+
+// ═══════════════════════════════════════════════════════════
+// ICONS
+// ═══════════════════════════════════════════════════════════
+function svg(d, size = '') {
+  return `<svg ${size} viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">${d}</svg>`;
+}
+const S14 = 'width="14" height="14"';
+const S13 = 'width="13" height="13"';
+const S32 = 'width="32" height="32"';
+
+function iGrid()     { return svg('<rect x="3" y="3" width="7" height="7" rx="1"/><rect x="14" y="3" width="7" height="7" rx="1"/><rect x="3" y="14" width="7" height="7" rx="1"/><rect x="14" y="14" width="7" height="7" rx="1"/>'); }
+function iList()     { return svg('<line x1="8" y1="6" x2="21" y2="6"/><line x1="8" y1="12" x2="21" y2="12"/><line x1="8" y1="18" x2="21" y2="18"/><line x1="3" y1="6" x2="3.01" y2="6"/><line x1="3" y1="12" x2="3.01" y2="12"/><line x1="3" y1="18" x2="3.01" y2="18"/>'); }
+function iPlus()     { return svg('<line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/>'); }
+function iTrash()    { return svg('<polyline points="3 6 5 6 21 6"/><path d="M19 6l-1 14H6L5 6"/><path d="M10 11v6M14 11v6M9 6V4h6v2"/>', S13); }
+function iEdit()     { return svg('<path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"/><path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"/>', S13); }
+function iDownload() { return svg('<path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/>', S14); }
+function iUpload()   { return svg('<path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="17 8 12 3 7 8"/><line x1="12" y1="3" x2="12" y2="15"/>', S14); }
+function iSun()      { return svg('<circle cx="12" cy="12" r="5"/><line x1="12" y1="1" x2="12" y2="3"/><line x1="12" y1="21" x2="12" y2="23"/><line x1="4.22" y1="4.22" x2="5.64" y2="5.64"/><line x1="18.36" y1="18.36" x2="19.78" y2="19.78"/><line x1="1" y1="12" x2="3" y2="12"/><line x1="21" y1="12" x2="23" y2="12"/><line x1="4.22" y1="19.78" x2="5.64" y2="18.36"/><line x1="18.36" y1="5.64" x2="19.78" y2="4.22"/>'); }
+function iMoon()     { return svg('<path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"/>'); }
+function iSearch()   { return svg('<circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/>', S14); }
+function iCheck()    { return svg('<polyline points="20 6 9 17 4 12"/>'); }
+
+// ═══════════════════════════════════════════════════════════
+// SIDEBAR
+// ═══════════════════════════════════════════════════════════
+function renderSidebar() {
+  document.getElementById('nav').innerHTML = VIEWS.map(v =>
+    `<button class="nav-item${S.view === v.id ? ' active' : ''}" onclick="go('${v.id}')">${v.icon}<span>${v.label}</span></button>`
+  ).join('');
+
+  const total  = S.tasks.length;
+  const active = S.tasks.filter(t => !t.done).length;
+  const q1open = S.tasks.filter(t => t.quadrant === 'q1' && !t.done).length;
+  document.getElementById('sidebar-stats').innerHTML = `
+    <div class="sb-stat"><span class="sb-stat-lbl">Total</span><span class="sb-stat-val">${total}</span></div>
+    <div class="sb-stat"><span class="sb-stat-lbl">Active</span><span class="sb-stat-val">${active}</span></div>
+    <div class="sb-stat"><span class="sb-stat-lbl">Do First</span><span class="sb-stat-val" style="color:#f87171">${q1open}</span></div>
+    <div class="sb-stat"><span class="sb-stat-lbl">Done</span><span class="sb-stat-val" style="color:var(--brand)">${total - active}</span></div>
+  `;
+  document.getElementById('sb-date').textContent = new Date().toLocaleDateString('en-US', { weekday: 'long', day: 'numeric', month: 'long' });
+  renderThemeBtn();
+}
+
+// ═══════════════════════════════════════════════════════════
+// NAVIGATION
+// ═══════════════════════════════════════════════════════════
+function go(view) {
+  S.view = view;
+  render();
+}
+
+function render() {
+  renderSidebar();
+  const m = document.getElementById('main');
+  if (S.view === 'matrix') {
+    m.className = '';
+    m.innerHTML = vMatrix();
+  } else {
+    m.className = 'list-mode';
+    m.innerHTML = '<div class="list-view">' + vTasks() + '</div>';
+  }
+}
+
+// ═══════════════════════════════════════════════════════════
+// VIEW: MATRIX
+// ═══════════════════════════════════════════════════════════
+function vMatrix() {
+  const active = S.tasks.filter(t => !t.done).length;
+  return `
+    <div class="matrix-header">
+      <div>
+        <h1>Task Matrix</h1>
+        <p>${active} active task${active !== 1 ? 's' : ''} · Drag to reprioritize</p>
+      </div>
+      <div class="header-actions">
+        <button class="btn btn-s" onclick="exportData()">${iDownload()} Export</button>
+        <label class="btn btn-s" style="cursor:pointer">${iUpload()} Import
+          <input type="file" accept=".json" style="display:none" onchange="importData(event)">
+        </label>
+        <button class="btn btn-p" onclick="openModal(null, null)">${iPlus()} Add Task</button>
+      </div>
+    </div>
+    <div class="matrix-grid" id="matrix-grid">
+      ${QUADRANTS.map(q => renderQuadrant(q)).join('')}
+    </div>
+  `;
+}
+
+function renderQuadrant(q) {
+  const all    = tasksOf(q.id);
+  const active = all.filter(t => !t.done);
+  const done   = all.filter(t => t.done);
+  const list   = [...active, ...done];
+
+  return `
+    <div class="quadrant" id="quad-${q.id}" data-qid="${q.id}"
+      style="--q-color:${q.color}"
+      ondragover="onDragOver(event,'${q.id}')"
+      ondrop="onDrop(event,'${q.id}')"
+      ondragleave="onDragLeave(event,'${q.id}')">
+      <div class="q-header">
+        <div class="q-title-group">
+          <span class="q-dot"></span>
+          <div>
+            <div class="q-name">${q.name}</div>
+            <div class="q-label">${q.label}</div>
+          </div>
+        </div>
+        <span class="q-count">${active.length}</span>
+      </div>
+      <div class="q-body" id="qbody-${q.id}">
+        ${list.length === 0
+          ? `<div class="q-empty">${iPlus()}<p>${q.hint}</p></div>`
+          : list.map(t => renderCard(t, q)).join('')
+        }
+      </div>
+      <div class="q-add">
+        <div class="q-add-row">
+          <input class="q-add-input" id="qadd-${q.id}" type="text"
+            placeholder="Quick add… press Enter"
+            onkeydown="onQuickKey(event,'${q.id}')">
+          <button class="q-add-btn" onclick="quickAddBtn('${q.id}')"
+            title="Add task">${iPlus()}</button>
+        </div>
+      </div>
+    </div>
+  `;
+}
+
+function renderCard(t, q) {
+  const c = getC(t.category);
+  return `
+    <div class="task-card${t.done ? ' done' : ''}"
+      id="task-${t.id}" data-id="${t.id}" data-qid="${q.id}"
+      style="--q-color:${q.color}"
+      draggable="true"
+      ondragstart="onDragStart(event,'${t.id}','${q.id}')"
+      ondragend="onDragEnd(event)">
+      <div class="tc-top">
+        <input type="checkbox" class="tc-check" ${t.done ? 'checked' : ''}
+          onclick="event.stopPropagation()"
+          onchange="toggleDone('${t.id}')">
+        <div class="tc-body">
+          <div class="tc-title">${esc(t.title)}</div>
+          ${t.desc ? `<div class="tc-desc">${esc(t.desc)}</div>` : ''}
+          ${t.category ? `<div class="tc-meta"><span class="tc-cat" style="background:${c.bg};color:${c.color}">${c.name}</span></div>` : ''}
+        </div>
+        <div class="tc-actions">
+          <button class="icon-btn" title="Edit"
+            onclick="openModal('${t.id}',null);event.stopPropagation()">${iEdit()}</button>
+          <button class="icon-btn del" title="Delete"
+            onclick="deleteTask('${t.id}');event.stopPropagation()">${iTrash()}</button>
+        </div>
+      </div>
+    </div>
+  `;
+}
+
+// ═══════════════════════════════════════════════════════════
+// VIEW: ALL TASKS
+// ═══════════════════════════════════════════════════════════
+function vTasks() {
+  let tasks = [...S.tasks];
+  const f = S.filter;
+  if (f.quadrant)  tasks = tasks.filter(t => t.quadrant === f.quadrant);
+  if (f.category)  tasks = tasks.filter(t => t.category === f.category);
+  if (!f.showDone) tasks = tasks.filter(t => !t.done);
+  if (f.search) {
+    const q = f.search.toLowerCase();
+    tasks = tasks.filter(t =>
+      t.title.toLowerCase().includes(q) ||
+      (t.desc || '').toLowerCase().includes(q)
+    );
+  }
+
+  return `
+    <div class="list-view-header">
+      <div style="display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:10px">
+        <div>
+          <h1>All Tasks</h1>
+          <p>${tasks.length} task${tasks.length !== 1 ? 's' : ''}</p>
+        </div>
+        <div style="display:flex;gap:7px;flex-wrap:wrap">
+          <button class="btn btn-s" onclick="exportData()">${iDownload()} Export</button>
+          <label class="btn btn-s" style="cursor:pointer">${iUpload()} Import
+            <input type="file" accept=".json" style="display:none" onchange="importData(event)">
+          </label>
+          <button class="btn btn-p" onclick="openModal(null,null)">${iPlus()} Add Task</button>
+        </div>
+      </div>
+    </div>
+    <div class="filter-bar">
+      <div class="search-wrap">
+        ${iSearch()}
+        <input class="search-input" type="text" placeholder="Search…"
+          value="${esc(f.search)}"
+          oninput="S.filter.search=this.value;refreshList()">
+      </div>
+      <select class="fs" onchange="S.filter.quadrant=this.value;refreshList()">
+        <option value="">All quadrants</option>
+        ${QUADRANTS.map(q => `<option value="${q.id}"${f.quadrant===q.id?' selected':''}>${q.name}</option>`).join('')}
+      </select>
+      <select class="fs" onchange="S.filter.category=this.value;refreshList()">
+        <option value="">All categories</option>
+        ${CATEGORIES.filter(c=>c.id).map(c => `<option value="${c.id}"${f.category===c.id?' selected':''}>${c.name}</option>`).join('')}
+      </select>
+      <label style="display:flex;align-items:center;gap:6px;font-size:12.5px;color:var(--t-400);cursor:pointer;white-space:nowrap">
+        <input type="checkbox" ${f.showDone?'checked':''} onchange="S.filter.showDone=this.checked;refreshList()">
+        Show done
+      </label>
+    </div>
+    ${tasks.length === 0
+      ? `<div style="text-align:center;padding:60px 0;color:var(--t-500)">
+           ${iList().replace(S14,'width="36" height="36"')}
+           <p style="margin-top:10px;font-size:13px">No tasks match the filters</p>
+         </div>`
+      : tasks.map(t => {
+          const q = getQ(t.quadrant);
+          const c = getC(t.category);
+          return `
+            <div class="tli${t.done?' done':''}">
+              <input type="checkbox" class="tli-check" ${t.done?'checked':''}
+                onchange="toggleDoneList('${t.id}')">
+              <div class="tli-body">
+                <div class="tli-title">${esc(t.title)}</div>
+                ${t.desc ? `<div class="tli-desc">${esc(t.desc)}</div>` : ''}
+                <div class="tli-meta">
+                  <span class="tli-q-badge" style="background:${q.bg};color:${q.color}">${q.name}</span>
+                  ${t.category ? `<span class="tli-cat" style="background:${c.bg};color:${c.color}">${c.name}</span>` : ''}
+                </div>
+              </div>
+              <div class="tli-actions">
+                <button class="icon-btn" title="Edit" onclick="openModal('${t.id}',null)">${iEdit()}</button>
+                <button class="icon-btn del" title="Delete" onclick="deleteTaskList('${t.id}')">${iTrash()}</button>
+              </div>
+            </div>
+          `;
+        }).join('')
+    }
+  `;
+}
+
+function refreshList() {
+  document.querySelector('.list-view').innerHTML = vTasks();
+}
+
+// ═══════════════════════════════════════════════════════════
+// TASK MUTATIONS
+// ═══════════════════════════════════════════════════════════
+function addTask(data) {
+  const t = {
+    id: uid(),
+    title: data.title.trim(),
+    desc: (data.desc || '').trim(),
+    category: data.category || '',
+    quadrant: data.quadrant || 'q1',
+    done: false,
+    createdAt: Date.now(),
+  };
+  S.tasks.push(t);
+  persist();
+  renderSidebar();
+  return t;
+}
+
+function updateTask(id, data) {
+  const t = S.tasks.find(t => t.id === id);
+  if (!t) return;
+  Object.assign(t, data);
+  persist();
+}
+
+function deleteTask(id) {
+  const t = S.tasks.find(x => x.id === id);
+  S.tasks = S.tasks.filter(x => x.id !== id);
+  persist();
+  toast('Task deleted');
+  if (S.view === 'matrix' && t) refreshQuadrant(t.quadrant);
+  renderSidebar();
+}
+
+function deleteTaskList(id) {
+  S.tasks = S.tasks.filter(x => x.id !== id);
+  persist();
+  toast('Task deleted');
+  renderSidebar();
+  refreshList();
+}
+
+function toggleDone(id) {
+  const t = S.tasks.find(x => x.id === id);
+  if (!t) return;
+  t.done = !t.done;
+  persist();
+  renderSidebar();
+  refreshQuadrant(t.quadrant);
+}
+
+function toggleDoneList(id) {
+  const t = S.tasks.find(x => x.id === id);
+  if (!t) return;
+  t.done = !t.done;
+  persist();
+  renderSidebar();
+  refreshList();
+}
+
+// Re-render a single quadrant without touching others
+function refreshQuadrant(qid) {
+  const el = document.getElementById('quad-' + qid);
+  if (!el) return;
+  const tmp = document.createElement('div');
+  tmp.innerHTML = renderQuadrant(getQ(qid));
+  el.replaceWith(tmp.firstElementChild);
+}
+
+// ═══════════════════════════════════════════════════════════
+// QUICK ADD
+// ═══════════════════════════════════════════════════════════
+function onQuickKey(e, qid) {
+  if (e.key !== 'Enter') return;
+  const inp = document.getElementById('qadd-' + qid);
+  const title = inp.value.trim();
+  if (!title) return;
+  addTask({ title, quadrant: qid });
+  inp.value = '';
+  refreshQuadrant(qid);
+}
+
+function quickAddBtn(qid) {
+  const inp = document.getElementById('qadd-' + qid);
+  const title = inp.value.trim();
+  if (!title) { inp.focus(); return; }
+  addTask({ title, quadrant: qid });
+  inp.value = '';
+  refreshQuadrant(qid);
+}
+
+// ═══════════════════════════════════════════════════════════
+// MODAL (add / edit)
+// ═══════════════════════════════════════════════════════════
+function openModal(taskId, presetQid) {
+  const task   = taskId ? S.tasks.find(t => t.id === taskId) : null;
+  const isEdit = !!task;
+  const qid    = isEdit ? task.quadrant : (presetQid || 'q1');
+
+  document.getElementById('modal-root').innerHTML = `
+    <div class="modal-overlay" id="moverlay" onclick="closeModalOutside(event)">
+      <div class="modal" role="dialog" aria-modal="true">
+        <div class="modal-title">${isEdit ? 'Edit Task' : 'New Task'}</div>
+        <form onsubmit="saveModal(event,${isEdit ? `'${task.id}'` : 'null'})">
+
+          <div class="fg">
+            <label class="fl">Title <span style="color:var(--red)">*</span></label>
+            <input class="fi" id="m-title" type="text" autocomplete="off" required
+              placeholder="What needs to be done?"
+              value="${isEdit ? esc(task.title) : ''}">
+          </div>
+
+          <div class="fg">
+            <label class="fl">Description
+              <span style="color:var(--t-500);font-weight:400;text-transform:none;font-size:11px"> optional</span>
+            </label>
+            <textarea class="fta" id="m-desc"
+              placeholder="Add more context, notes…">${isEdit ? esc(task.desc || '') : ''}</textarea>
+          </div>
+
+          <div class="fg">
+            <label class="fl">Quadrant</label>
+            <div class="q-selector" id="m-qsel">
+              ${QUADRANTS.map(q => `
+                <div class="q-opt${qid === q.id ? ' selected' : ''}"
+                  style="--opt-color:${q.color}"
+                  data-qid="${q.id}"
+                  onclick="selectQ('${q.id}')">
+                  <div class="q-opt-name">${q.name}</div>
+                  <div class="q-opt-desc">${q.label}</div>
+                </div>
+              `).join('')}
+            </div>
+            <input type="hidden" id="m-qid" value="${qid}">
+          </div>
+
+          <div class="fg">
+            <label class="fl">Category
+              <span style="color:var(--t-500);font-weight:400;text-transform:none;font-size:11px"> optional</span>
+            </label>
+            <select class="fs" id="m-cat" style="width:100%">
+              ${CATEGORIES.map(c => `
+                <option value="${c.id}"${isEdit && task.category === c.id ? ' selected' : ''}>
+                  ${c.name}
+                </option>
+              `).join('')}
+            </select>
+          </div>
+
+          <div class="modal-actions">
+            <button type="submit" class="btn btn-p">${isEdit ? 'Save Changes' : 'Add Task'}</button>
+            <button type="button" class="btn btn-s" onclick="closeModal()">Cancel</button>
+            ${isEdit ? `<button type="button" class="btn btn-danger" style="margin-left:auto"
+              onclick="deleteTask('${task.id}');closeModal()">${iTrash()} Delete</button>` : ''}
+          </div>
+        </form>
+      </div>
+    </div>
+  `;
+  setTimeout(() => document.getElementById('m-title')?.focus(), 30);
+}
+
+function selectQ(qid) {
+  document.getElementById('m-qid').value = qid;
+  document.querySelectorAll('.q-opt').forEach(el => {
+    el.classList.toggle('selected', el.dataset.qid === qid);
+  });
+}
+
+function saveModal(e, taskId) {
+  e.preventDefault();
+  const title    = document.getElementById('m-title').value.trim();
+  const desc     = document.getElementById('m-desc').value.trim();
+  const qid      = document.getElementById('m-qid').value;
+  const category = document.getElementById('m-cat').value;
+  if (!title) return;
+
+  if (taskId) {
+    const oldQ = S.tasks.find(t => t.id === taskId)?.quadrant;
+    updateTask(taskId, { title, desc, quadrant: qid, category });
+    toast('Task updated');
+    closeModal();
+    if (S.view === 'matrix') {
+      if (oldQ && oldQ !== qid) refreshQuadrant(oldQ);
+      refreshQuadrant(qid);
+    } else {
+      refreshList();
+    }
+  } else {
+    addTask({ title, desc, quadrant: qid, category });
+    toast('Task added');
+    closeModal();
+    if (S.view === 'matrix') refreshQuadrant(qid);
+    else refreshList();
+  }
+  renderSidebar();
+}
+
+function closeModal() {
+  document.getElementById('modal-root').innerHTML = '';
+}
+function closeModalOutside(e) {
+  if (e.target.id === 'moverlay') closeModal();
+}
+
+// ═══════════════════════════════════════════════════════════
+// DRAG AND DROP
+// ═══════════════════════════════════════════════════════════
+function onDragStart(e, taskId, qid) {
+  drag.id   = taskId;
+  drag.srcQ = qid;
+  e.dataTransfer.effectAllowed = 'move';
+  e.dataTransfer.setData('text/plain', taskId);
+  setTimeout(() => document.getElementById('task-' + taskId)?.classList.add('dragging'), 0);
+}
+
+function onDragEnd() {
+  document.querySelectorAll('.task-card.dragging').forEach(el => el.classList.remove('dragging'));
+  document.querySelectorAll('.quadrant.drag-over').forEach(el => el.classList.remove('drag-over'));
+  document.querySelectorAll('.drop-line').forEach(el => el.remove());
+}
+
+function onDragOver(e, qid) {
+  e.preventDefault();
+  e.dataTransfer.dropEffect = 'move';
+
+  const quadEl = document.getElementById('quad-' + qid);
+  if (quadEl) quadEl.classList.add('drag-over');
+
+  const body = document.getElementById('qbody-' + qid);
+  if (!body) return;
+
+  body.querySelectorAll('.drop-line').forEach(el => el.remove());
+  const cards = [...body.querySelectorAll('.task-card:not(.dragging)')];
+
+  const line = document.createElement('div');
+  line.className = 'drop-line';
+
+  let placed = false;
+  for (const card of cards) {
+    const rect = card.getBoundingClientRect();
+    if (e.clientY < rect.top + rect.height / 2) {
+      body.insertBefore(line, card);
+      placed = true;
+      break;
+    }
+  }
+  if (!placed) body.appendChild(line);
+}
+
+function onDragLeave(e, qid) {
+  const quadEl  = document.getElementById('quad-' + qid);
+  const related = e.relatedTarget;
+  if (quadEl && (!related || !quadEl.contains(related))) {
+    quadEl.classList.remove('drag-over');
+    document.getElementById('qbody-' + qid)?.querySelectorAll('.drop-line').forEach(el => el.remove());
+  }
+}
+
+function onDrop(e, targetQid) {
+  e.preventDefault();
+  const taskId = drag.id || e.dataTransfer.getData('text/plain');
+  if (!taskId) return;
+
+  const task = S.tasks.find(t => t.id === taskId);
+  if (!task) return;
+
+  const body      = document.getElementById('qbody-' + targetQid);
+  const line      = body?.querySelector('.drop-line');
+  const nextCard  = line?.nextElementSibling;
+  const insertBeforeId = nextCard?.dataset?.id || null;
+
+  // Remove from array
+  S.tasks = S.tasks.filter(t => t.id !== taskId);
+  task.quadrant = targetQid;
+
+  if (insertBeforeId) {
+    const idx = S.tasks.findIndex(t => t.id === insertBeforeId);
+    S.tasks.splice(idx !== -1 ? idx : S.tasks.length, 0, task);
+  } else {
+    // Append after last task in target quadrant
+    let lastIdx = -1;
+    for (let i = 0; i < S.tasks.length; i++) {
+      if (S.tasks[i].quadrant === targetQid) lastIdx = i;
+    }
+    S.tasks.splice(lastIdx + 1, 0, task);
+  }
+
+  persist();
+
+  const srcQ = drag.srcQ;
+  drag.id   = null;
+  drag.srcQ = null;
+
+  document.querySelectorAll('.quadrant.drag-over').forEach(el => el.classList.remove('drag-over'));
+  document.querySelectorAll('.drop-line').forEach(el => el.remove());
+
+  renderSidebar();
+  if (srcQ && srcQ !== targetQid) refreshQuadrant(srcQ);
+  refreshQuadrant(targetQid);
+}
+
+// ═══════════════════════════════════════════════════════════
+// EXPORT / IMPORT
+// ═══════════════════════════════════════════════════════════
+function exportData() {
+  const data = {
+    version: 1,
+    exportedAt: new Date().toISOString(),
+    tasks: S.tasks,
+  };
+  const blob = new Blob([JSON.stringify(data, null, 2)], { type: 'application/json' });
+  const url  = URL.createObjectURL(blob);
+  const a    = document.createElement('a');
+  a.href     = url;
+  a.download = `eisenhower-${new Date().toISOString().slice(0, 10)}.json`;
+  a.click();
+  URL.revokeObjectURL(url);
+  toast('Tasks exported!');
+}
+
+function importData(e) {
+  const file = e.target.files[0];
+  if (!file) return;
+  const reader = new FileReader();
+  reader.onload = ev => {
+    try {
+      const raw   = JSON.parse(ev.target.result);
+      const tasks = Array.isArray(raw) ? raw : (raw.tasks || []);
+      if (!Array.isArray(tasks)) throw new Error();
+      const imported = tasks.map(t => ({
+        id:        t.id || uid(),
+        title:     t.title || 'Untitled',
+        desc:      t.desc  || '',
+        category:  t.category || '',
+        quadrant:  QUADRANTS.find(q => q.id === t.quadrant) ? t.quadrant : 'q1',
+        done:      !!t.done,
+        createdAt: t.createdAt || Date.now(),
+      }));
+      S.tasks = imported;
+      persist();
+      toast(`Imported ${S.tasks.length} task${S.tasks.length !== 1 ? 's' : ''}`);
+      render();
+    } catch (_) {
+      toast('Import failed — invalid file');
+    }
+  };
+  reader.readAsText(file);
+  e.target.value = '';
+}
+
+// ═══════════════════════════════════════════════════════════
+// KEYBOARD SHORTCUTS
+// ═══════════════════════════════════════════════════════════
+document.addEventListener('keydown', e => {
+  if (e.key === 'Escape') closeModal();
+  if ((e.ctrlKey || e.metaKey) && e.key === 'n') {
+    e.preventDefault();
+    openModal(null, null);
+  }
+});
+
+// ═══════════════════════════════════════════════════════════
+// BOOT
+// ═══════════════════════════════════════════════════════════
+loadTheme();
+load();
+render();
+</script>
+</body>
+</html>
