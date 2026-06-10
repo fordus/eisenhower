@@ -73,11 +73,8 @@
     }
 
     .sidebar-logo {
-      display: flex;
-      align-items: center;
-      gap: 10px;
-      padding: 16px;
-      border-bottom: 1px solid var(--bg-800);
+      display: flex; align-items: center; gap: 10px;
+      padding: 16px; border-bottom: 1px solid var(--bg-800);
     }
     .sidebar-logo svg { width: 24px; height: 24px; flex-shrink: 0; }
     .logo-text { flex: 1; min-width: 0; }
@@ -93,8 +90,33 @@
     .theme-btn:hover { background: var(--bg-800); color: var(--t-200); }
     .theme-btn svg { width: 16px; height: 16px; }
 
+    /* ── WORKSPACE TOGGLE ── */
+    .ws-section {
+      padding: 10px 10px 6px;
+      border-bottom: 1px solid var(--bg-800);
+      flex-shrink: 0;
+    }
+    .ws-label {
+      font-size: 9.5px; font-weight: 600; color: var(--t-500);
+      text-transform: uppercase; letter-spacing: 0.6px; margin-bottom: 6px;
+    }
+    .ws-toggle {
+      display: flex; background: var(--bg-800);
+      border-radius: 8px; padding: 3px; gap: 2px;
+    }
+    .ws-btn {
+      flex: 1; border: none; background: transparent;
+      color: var(--t-500); font-family: inherit; font-size: 12px; font-weight: 600;
+      padding: 6px 8px; border-radius: 6px; cursor: pointer;
+      transition: background 0.12s, color 0.12s; display: flex;
+      align-items: center; justify-content: center; gap: 5px;
+    }
+    .ws-btn:hover { color: var(--t-200); }
+    .ws-btn.on { background: var(--bg-700); color: var(--t-100); }
+    .ws-btn svg { width: 12px; height: 12px; flex-shrink: 0; }
+
     #sidebar nav {
-      flex: 1; padding: 10px 8px;
+      flex: 1; padding: 8px 8px;
       display: flex; flex-direction: column; gap: 2px; overflow-y: auto;
     }
 
@@ -191,7 +213,7 @@
       min-height: 0;
     }
 
-    /* ── TASK CARD ── */
+    /* ── TASK CARD (matrix) ── */
     .task-card {
       background: var(--bg-800);
       border: 1px solid var(--bg-700);
@@ -214,19 +236,13 @@
       border-radius: 4px; border: 1.5px solid var(--bg-600);
       cursor: pointer; appearance: none; position: relative;
       transition: background 0.12s, border-color 0.12s;
-      margin-top: 1px; flex-shrink: 0;
-      background: transparent;
+      margin-top: 1px; flex-shrink: 0; background: transparent;
     }
-    .tc-check:checked {
-      background: var(--q-color);
-      border-color: var(--q-color);
-    }
+    .tc-check:checked { background: var(--q-color); border-color: var(--q-color); }
     .tc-check:checked::after {
-      content: "";
-      position: absolute; left: 2px; top: 0px;
-      width: 7px; height: 4px;
-      border: 2px solid #fff; border-top: none; border-right: none;
-      transform: rotate(-45deg);
+      content: ""; position: absolute; left: 2px; top: 0px;
+      width: 7px; height: 4px; border: 2px solid #fff;
+      border-top: none; border-right: none; transform: rotate(-45deg);
     }
 
     .tc-body { flex: 1; min-width: 0; }
@@ -308,15 +324,26 @@
     .fs:focus { border-color: var(--brand); }
     .fs option { background: var(--bg-800); color: var(--t-100); }
 
+    /* ── TASK LIST ITEM ── */
     .tli {
       display: flex; align-items: flex-start; gap: 10px;
-      padding: 11px 14px; background: var(--bg-900);
+      padding: 11px 12px; background: var(--bg-900);
       border: 1px solid var(--bg-800); border-radius: 10px;
-      margin-bottom: 7px; transition: border-color 0.12s;
+      transition: border-color 0.12s, box-shadow 0.12s;
+      cursor: grab; user-select: none;
     }
-    .tli:hover { border-color: var(--bg-700); }
+    .tli:hover { border-color: var(--bg-700); box-shadow: 0 2px 6px rgba(0,0,0,0.15); }
+    .tli:active { cursor: grabbing; }
+    .tli.dragging { opacity: 0.35; }
     .tli.done .tli-title { text-decoration: line-through; color: var(--t-500); }
     .tli.done { opacity: 0.65; }
+
+    .tli-grip {
+      color: var(--t-500); flex-shrink: 0; margin-top: 3px;
+      opacity: 0; transition: opacity 0.12s; cursor: grab;
+    }
+    .tli:hover .tli-grip { opacity: 1; }
+
     .tli-check {
       width: 16px; height: 16px; min-width: 16px;
       border-radius: 4px; border: 1.5px solid var(--bg-600);
@@ -376,7 +403,6 @@
     .fi:focus, .fta:focus { border-color: var(--brand); }
     .fta { resize: vertical; min-height: 80px; }
 
-    /* quadrant selector */
     .q-selector { display: grid; grid-template-columns: 1fr 1fr; gap: 6px; }
     .q-opt {
       padding: 9px 11px; border-radius: 8px;
@@ -413,7 +439,8 @@
     /* ── RESPONSIVE ── */
     @media (max-width: 820px) {
       :root { --sidebar-w: 52px; }
-      .logo-text, .nav-item span, .sb-date, .sb-sub, .sidebar-stats { display: none; }
+      .logo-text, .nav-item span, .sb-date, .sb-sub, .sidebar-stats,
+      .ws-section, .ws-label { display: none; }
       .sidebar-logo { justify-content: space-between; padding: 12px 8px; }
     }
     @media (max-width: 640px) {
@@ -438,6 +465,7 @@
       </div>
       <button class="theme-btn" id="theme-btn" onclick="toggleTheme()" title="Toggle theme"></button>
     </div>
+    <div class="ws-section" id="ws-section"></div>
     <nav id="nav"></nav>
     <div class="sidebar-stats" id="sidebar-stats"></div>
     <div class="sidebar-footer">
@@ -457,6 +485,11 @@
 // ═══════════════════════════════════════════════════════════
 const SK = 'eisenhower_v1';
 
+const WORKSPACES = [
+  { id: 'work',     label: 'Work'     },
+  { id: 'personal', label: 'Personal' },
+];
+
 const QUADRANTS = [
   { id: 'q1', name: 'Do First',  label: 'Urgent + Important',         color: '#f87171', bg: 'rgba(248,113,113,0.12)',  hint: 'Critical tasks needing immediate action' },
   { id: 'q2', name: 'Schedule',  label: 'Not Urgent + Important',     color: '#74b044', bg: 'rgba(116,176,68,0.12)',   hint: 'Important goals to plan and protect' },
@@ -475,20 +508,21 @@ const CATEGORIES = [
 ];
 
 const VIEWS = [
-  { id: 'matrix', label: 'Matrix',    icon: iGrid()  },
   { id: 'tasks',  label: 'All Tasks', icon: iList()  },
+  { id: 'matrix', label: 'Matrix',    icon: iGrid()  },
 ];
 
 // ═══════════════════════════════════════════════════════════
 // STATE
 // ═══════════════════════════════════════════════════════════
 const S = {
-  view: 'matrix',
-  tasks: [],
-  filter: { quadrant: '', category: '', search: '', showDone: true },
+  view:      'tasks',
+  workspace: 'work',
+  tasks:     [],
+  filter:    { quadrant: '', category: '', search: '', showDone: true },
 };
 
-let drag = { id: null, srcQ: null };
+let drag = { id: null, srcQ: null, ctx: null };
 
 // ═══════════════════════════════════════════════════════════
 // STORAGE
@@ -523,13 +557,27 @@ function renderThemeBtn() {
 }
 
 // ═══════════════════════════════════════════════════════════
+// WORKSPACE
+// ═══════════════════════════════════════════════════════════
+function loadWorkspace() {
+  S.workspace = localStorage.getItem('eisenhower_ws') || 'work';
+}
+function setWorkspace(ws) {
+  S.workspace = ws;
+  localStorage.setItem('eisenhower_ws', ws);
+  render();
+}
+
+// ═══════════════════════════════════════════════════════════
 // UTILS
 // ═══════════════════════════════════════════════════════════
-const uid  = () => Date.now().toString(36) + Math.random().toString(36).slice(2, 5);
-const esc  = s => String(s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');
-const getQ = id => QUADRANTS.find(q => q.id === id) || QUADRANTS[0];
-const getC = id => CATEGORIES.find(c => c.id === id) || CATEGORIES[0];
-const tasksOf = qid => S.tasks.filter(t => t.quadrant === qid);
+const uid   = () => Date.now().toString(36) + Math.random().toString(36).slice(2, 5);
+const esc   = s => String(s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');
+const getQ  = id => QUADRANTS.find(q => q.id === id) || QUADRANTS[0];
+const getC  = id => CATEGORIES.find(c => c.id === id) || CATEGORIES[0];
+const wsOf  = () => S.workspace;
+const tasksOf = qid => S.tasks.filter(t => t.quadrant === qid && t.workspace === S.workspace);
+const wsTasks = () => S.tasks.filter(t => t.workspace === S.workspace);
 
 function toast(msg) {
   const el = document.getElementById('toast');
@@ -547,7 +595,6 @@ function svg(d, size = '') {
 }
 const S14 = 'width="14" height="14"';
 const S13 = 'width="13" height="13"';
-const S32 = 'width="32" height="32"';
 
 function iGrid()     { return svg('<rect x="3" y="3" width="7" height="7" rx="1"/><rect x="14" y="3" width="7" height="7" rx="1"/><rect x="3" y="14" width="7" height="7" rx="1"/><rect x="14" y="14" width="7" height="7" rx="1"/>'); }
 function iList()     { return svg('<line x1="8" y1="6" x2="21" y2="6"/><line x1="8" y1="12" x2="21" y2="12"/><line x1="8" y1="18" x2="21" y2="18"/><line x1="3" y1="6" x2="3.01" y2="6"/><line x1="3" y1="12" x2="3.01" y2="12"/><line x1="3" y1="18" x2="3.01" y2="18"/>'); }
@@ -559,25 +606,43 @@ function iUpload()   { return svg('<path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2
 function iSun()      { return svg('<circle cx="12" cy="12" r="5"/><line x1="12" y1="1" x2="12" y2="3"/><line x1="12" y1="21" x2="12" y2="23"/><line x1="4.22" y1="4.22" x2="5.64" y2="5.64"/><line x1="18.36" y1="18.36" x2="19.78" y2="19.78"/><line x1="1" y1="12" x2="3" y2="12"/><line x1="21" y1="12" x2="23" y2="12"/><line x1="4.22" y1="19.78" x2="5.64" y2="18.36"/><line x1="18.36" y1="5.64" x2="19.78" y2="4.22"/>'); }
 function iMoon()     { return svg('<path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"/>'); }
 function iSearch()   { return svg('<circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/>', S14); }
-function iCheck()    { return svg('<polyline points="20 6 9 17 4 12"/>'); }
+function iWork()     { return svg('<rect x="2" y="7" width="20" height="14" rx="2"/><path d="M16 7V5a2 2 0 0 0-2-2h-4a2 2 0 0 0-2 2v2"/>', 'width="12" height="12"'); }
+function iPerson()   { return svg('<path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/>', 'width="12" height="12"'); }
+function iGrip()     { return svg('<circle cx="9" cy="6" r="1" fill="currentColor" stroke="none"/><circle cx="15" cy="6" r="1" fill="currentColor" stroke="none"/><circle cx="9" cy="12" r="1" fill="currentColor" stroke="none"/><circle cx="15" cy="12" r="1" fill="currentColor" stroke="none"/><circle cx="9" cy="18" r="1" fill="currentColor" stroke="none"/><circle cx="15" cy="18" r="1" fill="currentColor" stroke="none"/>', 'width="16" height="16"'); }
 
 // ═══════════════════════════════════════════════════════════
 // SIDEBAR
 // ═══════════════════════════════════════════════════════════
 function renderSidebar() {
+  // Workspace toggle
+  document.getElementById('ws-section').innerHTML = `
+    <div class="ws-label">Workspace</div>
+    <div class="ws-toggle">
+      ${WORKSPACES.map(w => `
+        <button class="ws-btn${S.workspace === w.id ? ' on' : ''}" onclick="setWorkspace('${w.id}')">
+          ${w.id === 'work' ? iWork() : iPerson()} ${w.label}
+        </button>
+      `).join('')}
+    </div>
+  `;
+
+  // Nav
   document.getElementById('nav').innerHTML = VIEWS.map(v =>
     `<button class="nav-item${S.view === v.id ? ' active' : ''}" onclick="go('${v.id}')">${v.icon}<span>${v.label}</span></button>`
   ).join('');
 
-  const total  = S.tasks.length;
-  const active = S.tasks.filter(t => !t.done).length;
-  const q1open = S.tasks.filter(t => t.quadrant === 'q1' && !t.done).length;
+  // Stats (scoped to current workspace)
+  const all    = wsTasks();
+  const total  = all.length;
+  const active = all.filter(t => !t.done).length;
+  const q1open = all.filter(t => t.quadrant === 'q1' && !t.done).length;
   document.getElementById('sidebar-stats').innerHTML = `
     <div class="sb-stat"><span class="sb-stat-lbl">Total</span><span class="sb-stat-val">${total}</span></div>
     <div class="sb-stat"><span class="sb-stat-lbl">Active</span><span class="sb-stat-val">${active}</span></div>
     <div class="sb-stat"><span class="sb-stat-lbl">Do First</span><span class="sb-stat-val" style="color:#f87171">${q1open}</span></div>
     <div class="sb-stat"><span class="sb-stat-lbl">Done</span><span class="sb-stat-val" style="color:var(--brand)">${total - active}</span></div>
   `;
+
   document.getElementById('sb-date').textContent = new Date().toLocaleDateString('en-US', { weekday: 'long', day: 'numeric', month: 'long' });
   renderThemeBtn();
 }
@@ -606,11 +671,12 @@ function render() {
 // VIEW: MATRIX
 // ═══════════════════════════════════════════════════════════
 function vMatrix() {
-  const active = S.tasks.filter(t => !t.done).length;
+  const ws     = WORKSPACES.find(w => w.id === S.workspace);
+  const active = wsTasks().filter(t => !t.done).length;
   return `
     <div class="matrix-header">
       <div>
-        <h1>Task Matrix</h1>
+        <h1>${ws.label} Matrix</h1>
         <p>${active} active task${active !== 1 ? 's' : ''} · Drag to reprioritize</p>
       </div>
       <div class="header-actions">
@@ -618,7 +684,7 @@ function vMatrix() {
         <label class="btn btn-s" style="cursor:pointer">${iUpload()} Import
           <input type="file" accept=".json" style="display:none" onchange="importData(event)">
         </label>
-        <button class="btn btn-p" onclick="openModal(null, null)">${iPlus()} Add Task</button>
+        <button class="btn btn-p" onclick="openModal(null,null)">${iPlus()} Add Task</button>
       </div>
     </div>
     <div class="matrix-grid" id="matrix-grid">
@@ -701,7 +767,8 @@ function renderCard(t, q) {
 // VIEW: ALL TASKS
 // ═══════════════════════════════════════════════════════════
 function vTasks() {
-  let tasks = [...S.tasks];
+  const ws = WORKSPACES.find(w => w.id === S.workspace);
+  let tasks = wsTasks();
   const f = S.filter;
   if (f.quadrant)  tasks = tasks.filter(t => t.quadrant === f.quadrant);
   if (f.category)  tasks = tasks.filter(t => t.category === f.category);
@@ -718,7 +785,7 @@ function vTasks() {
     <div class="list-view-header">
       <div style="display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:10px">
         <div>
-          <h1>All Tasks</h1>
+          <h1>${ws.label} Tasks</h1>
           <p>${tasks.length} task${tasks.length !== 1 ? 's' : ''}</p>
         </div>
         <div style="display:flex;gap:7px;flex-wrap:wrap">
@@ -753,36 +820,50 @@ function vTasks() {
     ${tasks.length === 0
       ? `<div style="text-align:center;padding:60px 0;color:var(--t-500)">
            ${iList().replace('viewBox', 'width="36" height="36" viewBox')}
-           <p style="margin-top:10px;font-size:13px">No tasks match the filters</p>
+           <p style="margin-top:10px;font-size:13px">No tasks here yet</p>
          </div>`
-      : tasks.map(t => {
-          const q = getQ(t.quadrant);
-          const c = getC(t.category);
-          return `
-            <div class="tli${t.done?' done':''}">
-              <input type="checkbox" class="tli-check" ${t.done?'checked':''}
-                onchange="toggleDoneList('${t.id}')">
-              <div class="tli-body">
-                <div class="tli-title">${esc(t.title)}</div>
-                ${t.desc ? `<div class="tli-desc">${esc(t.desc)}</div>` : ''}
-                <div class="tli-meta">
-                  <span class="tli-q-badge" style="background:${q.bg};color:${q.color}">${q.name}</span>
-                  ${t.category ? `<span class="tli-cat" style="background:${c.bg};color:${c.color}">${c.name}</span>` : ''}
-                </div>
-              </div>
-              <div class="tli-actions">
-                <button class="icon-btn" title="Edit" onclick="openModal('${t.id}',null)">${iEdit()}</button>
-                <button class="icon-btn del" title="Delete" onclick="deleteTaskList('${t.id}')">${iTrash()}</button>
-              </div>
-            </div>
-          `;
-        }).join('')
+      : `<div id="tlist"
+           ondragover="onListDragOver(event)"
+           ondrop="onListDrop(event)"
+           ondragleave="onListDragLeave(event)">
+           ${tasks.map(t => {
+               const q = getQ(t.quadrant);
+               const c = getC(t.category);
+               return `
+                 <div class="tli${t.done?' done':''}"
+                   data-id="${t.id}"
+                   draggable="true"
+                   ondragstart="onListDragStart(event,'${t.id}')"
+                   ondragend="onListDragEnd(event)">
+                   <span class="tli-grip">${iGrip()}</span>
+                   <input type="checkbox" class="tli-check" ${t.done?'checked':''}
+                     onclick="event.stopPropagation()"
+                     onchange="toggleDoneList('${t.id}')">
+                   <div class="tli-body">
+                     <div class="tli-title">${esc(t.title)}</div>
+                     ${t.desc ? `<div class="tli-desc">${esc(t.desc)}</div>` : ''}
+                     <div class="tli-meta">
+                       <span class="tli-q-badge" style="background:${q.bg};color:${q.color}">${q.name}</span>
+                       ${t.category ? `<span class="tli-cat" style="background:${c.bg};color:${c.color}">${c.name}</span>` : ''}
+                     </div>
+                   </div>
+                   <div class="tli-actions">
+                     <button class="icon-btn" title="Edit"
+                       onclick="openModal('${t.id}',null);event.stopPropagation()">${iEdit()}</button>
+                     <button class="icon-btn del" title="Delete"
+                       onclick="deleteTask('${t.id}');event.stopPropagation()">${iTrash()}</button>
+                   </div>
+                 </div>
+               `;
+             }).join('')}
+         </div>`
     }
   `;
 }
 
 function refreshList() {
-  document.querySelector('.list-view').innerHTML = vTasks();
+  const lv = document.querySelector('.list-view');
+  if (lv) lv.innerHTML = vTasks();
 }
 
 // ═══════════════════════════════════════════════════════════
@@ -790,12 +871,13 @@ function refreshList() {
 // ═══════════════════════════════════════════════════════════
 function addTask(data) {
   const t = {
-    id: uid(),
-    title: data.title.trim(),
-    desc: (data.desc || '').trim(),
-    category: data.category || '',
-    quadrant: data.quadrant || 'q1',
-    done: false,
+    id:        uid(),
+    title:     data.title.trim(),
+    desc:      (data.desc || '').trim(),
+    category:  data.category || '',
+    quadrant:  data.quadrant || 'q1',
+    workspace: data.workspace || S.workspace,
+    done:      false,
     createdAt: Date.now(),
   };
   S.tasks.push(t);
@@ -816,16 +898,9 @@ function deleteTask(id) {
   S.tasks = S.tasks.filter(x => x.id !== id);
   persist();
   toast('Task deleted');
+  renderSidebar();
   if (S.view === 'matrix' && t) refreshQuadrant(t.quadrant);
-  renderSidebar();
-}
-
-function deleteTaskList(id) {
-  S.tasks = S.tasks.filter(x => x.id !== id);
-  persist();
-  toast('Task deleted');
-  renderSidebar();
-  refreshList();
+  else if (S.view === 'tasks') refreshList();
 }
 
 function toggleDone(id) {
@@ -846,7 +921,6 @@ function toggleDoneList(id) {
   refreshList();
 }
 
-// Re-render a single quadrant without touching others
 function refreshQuadrant(qid) {
   const el = document.getElementById('quad-' + qid);
   if (!el) return;
@@ -878,7 +952,7 @@ function quickAddBtn(qid) {
 }
 
 // ═══════════════════════════════════════════════════════════
-// MODAL (add / edit)
+// MODAL
 // ═══════════════════════════════════════════════════════════
 function openModal(taskId, presetQid) {
   const task   = taskId ? S.tasks.find(t => t.id === taskId) : null;
@@ -992,11 +1066,12 @@ function closeModalOutside(e) {
 }
 
 // ═══════════════════════════════════════════════════════════
-// DRAG AND DROP
+// DRAG & DROP — MATRIX
 // ═══════════════════════════════════════════════════════════
 function onDragStart(e, taskId, qid) {
-  drag.id   = taskId;
+  drag.id  = taskId;
   drag.srcQ = qid;
+  drag.ctx  = 'matrix';
   e.dataTransfer.effectAllowed = 'move';
   e.dataTransfer.setData('text/plain', taskId);
   setTimeout(() => document.getElementById('task-' + taskId)?.classList.add('dragging'), 0);
@@ -1011,19 +1086,14 @@ function onDragEnd() {
 function onDragOver(e, qid) {
   e.preventDefault();
   e.dataTransfer.dropEffect = 'move';
-
   const quadEl = document.getElementById('quad-' + qid);
   if (quadEl) quadEl.classList.add('drag-over');
-
   const body = document.getElementById('qbody-' + qid);
   if (!body) return;
-
   body.querySelectorAll('.drop-line').forEach(el => el.remove());
   const cards = [...body.querySelectorAll('.task-card:not(.dragging)')];
-
   const line = document.createElement('div');
   line.className = 'drop-line';
-
   let placed = false;
   for (const card of cards) {
     const rect = card.getBoundingClientRect();
@@ -1049,36 +1119,32 @@ function onDrop(e, targetQid) {
   e.preventDefault();
   const taskId = drag.id || e.dataTransfer.getData('text/plain');
   if (!taskId) return;
-
   const task = S.tasks.find(t => t.id === taskId);
   if (!task) return;
 
-  const body      = document.getElementById('qbody-' + targetQid);
-  const line      = body?.querySelector('.drop-line');
-  const nextCard  = line?.nextElementSibling;
+  const body           = document.getElementById('qbody-' + targetQid);
+  const line           = body?.querySelector('.drop-line');
+  const nextCard       = line?.nextElementSibling;
   const insertBeforeId = nextCard?.dataset?.id || null;
 
-  // Remove from array
   S.tasks = S.tasks.filter(t => t.id !== taskId);
-  task.quadrant = targetQid;
+  task.quadrant  = targetQid;
+  task.workspace = S.workspace;
 
   if (insertBeforeId) {
     const idx = S.tasks.findIndex(t => t.id === insertBeforeId);
     S.tasks.splice(idx !== -1 ? idx : S.tasks.length, 0, task);
   } else {
-    // Append after last task in target quadrant
     let lastIdx = -1;
     for (let i = 0; i < S.tasks.length; i++) {
-      if (S.tasks[i].quadrant === targetQid) lastIdx = i;
+      if (S.tasks[i].quadrant === targetQid && S.tasks[i].workspace === S.workspace) lastIdx = i;
     }
     S.tasks.splice(lastIdx + 1, 0, task);
   }
 
   persist();
-
   const srcQ = drag.srcQ;
-  drag.id   = null;
-  drag.srcQ = null;
+  drag.id = null; drag.srcQ = null; drag.ctx = null;
 
   document.querySelectorAll('.quadrant.drag-over').forEach(el => el.classList.remove('drag-over'));
   document.querySelectorAll('.drop-line').forEach(el => el.remove());
@@ -1089,13 +1155,94 @@ function onDrop(e, targetQid) {
 }
 
 // ═══════════════════════════════════════════════════════════
+// DRAG & DROP — LIST
+// ═══════════════════════════════════════════════════════════
+function onListDragStart(e, taskId) {
+  drag.id  = taskId;
+  drag.ctx = 'list';
+  e.dataTransfer.effectAllowed = 'move';
+  e.dataTransfer.setData('text/plain', taskId);
+  setTimeout(() => {
+    const el = document.querySelector(`[data-id="${taskId}"].tli`);
+    if (el) el.classList.add('dragging');
+  }, 0);
+}
+
+function onListDragEnd() {
+  document.querySelectorAll('.tli.dragging').forEach(el => el.classList.remove('dragging'));
+  document.querySelectorAll('#tlist .drop-line').forEach(el => el.remove());
+  drag.id = null; drag.ctx = null;
+}
+
+function onListDragOver(e) {
+  e.preventDefault();
+  e.dataTransfer.dropEffect = 'move';
+  const list = document.getElementById('tlist');
+  if (!list) return;
+  list.querySelectorAll('.drop-line').forEach(el => el.remove());
+  const items = [...list.querySelectorAll('.tli:not(.dragging)')];
+  const line  = document.createElement('div');
+  line.className = 'drop-line';
+  let placed = false;
+  for (const item of items) {
+    const rect = item.getBoundingClientRect();
+    if (e.clientY < rect.top + rect.height / 2) {
+      list.insertBefore(line, item);
+      placed = true;
+      break;
+    }
+  }
+  if (!placed) list.appendChild(line);
+}
+
+function onListDragLeave(e) {
+  const list    = document.getElementById('tlist');
+  const related = e.relatedTarget;
+  if (list && (!related || !list.contains(related))) {
+    list.querySelectorAll('.drop-line').forEach(el => el.remove());
+  }
+}
+
+function onListDrop(e) {
+  e.preventDefault();
+  const taskId = drag.id || e.dataTransfer.getData('text/plain');
+  if (!taskId) return;
+  const task = S.tasks.find(t => t.id === taskId);
+  if (!task) return;
+
+  const list           = document.getElementById('tlist');
+  const line           = list?.querySelector('.drop-line');
+  const nextItem       = line?.nextElementSibling;
+  const insertBeforeId = nextItem?.dataset?.id || null;
+
+  S.tasks = S.tasks.filter(t => t.id !== taskId);
+
+  if (insertBeforeId) {
+    const idx = S.tasks.findIndex(t => t.id === insertBeforeId);
+    S.tasks.splice(idx !== -1 ? idx : S.tasks.length, 0, task);
+  } else {
+    // Append after last task in this workspace
+    let lastIdx = -1;
+    for (let i = 0; i < S.tasks.length; i++) {
+      if (S.tasks[i].workspace === S.workspace) lastIdx = i;
+    }
+    S.tasks.splice(lastIdx + 1, 0, task);
+  }
+
+  persist();
+  drag.id = null; drag.ctx = null;
+  renderSidebar();
+  refreshList();
+}
+
+// ═══════════════════════════════════════════════════════════
 // EXPORT / IMPORT
 // ═══════════════════════════════════════════════════════════
 function exportData() {
   const data = {
-    version: 1,
+    version:    1,
     exportedAt: new Date().toISOString(),
-    tasks: S.tasks,
+    tasks:      S.tasks,
   };
   const blob = new Blob([JSON.stringify(data, null, 2)], { type: 'application/json' });
   const url  = URL.createObjectURL(blob);
@@ -1116,16 +1263,16 @@ function importData(e) {
       const raw   = JSON.parse(ev.target.result);
       const tasks = Array.isArray(raw) ? raw : (raw.tasks || []);
       if (!Array.isArray(tasks)) throw new Error();
-      const imported = tasks.map(t => ({
-        id:        t.id || uid(),
-        title:     t.title || 'Untitled',
-        desc:      t.desc  || '',
-        category:  t.category || '',
+      S.tasks = tasks.map(t => ({
+        id:        t.id        || uid(),
+        title:     t.title     || 'Untitled',
+        desc:      t.desc      || '',
+        category:  t.category  || '',
         quadrant:  QUADRANTS.find(q => q.id === t.quadrant) ? t.quadrant : 'q1',
+        workspace: WORKSPACES.find(w => w.id === t.workspace) ? t.workspace : 'work',
         done:      !!t.done,
         createdAt: t.createdAt || Date.now(),
       }));
-      S.tasks = imported;
       persist();
       toast(`Imported ${S.tasks.length} task${S.tasks.length !== 1 ? 's' : ''}`);
       render();
@@ -1138,7 +1285,7 @@ function importData(e) {
 }
 
 // ═══════════════════════════════════════════════════════════
-// KEYBOARD SHORTCUTS
+// KEYBOARD
 // ═══════════════════════════════════════════════════════════
 document.addEventListener('keydown', e => {
   if (e.key === 'Escape') closeModal();
@@ -1152,6 +1299,7 @@ document.addEventListener('keydown', e => {
 // BOOT
 // ═══════════════════════════════════════════════════════════
 loadTheme();
+loadWorkspace();
 load();
 render();
 </script>
