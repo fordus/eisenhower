@@ -275,7 +275,7 @@
 
     /* ── EMPTY STATE ── */
     .q-empty { text-align: center; padding: 20px 10px; color: var(--t-500); }
-    .q-empty svg { width: 26px; height: 26px; margin: 0 auto 7px; opacity: 0.2; display: block; }
+    .q-empty svg { width: 28px !important; height: 28px !important; margin: 0 auto 7px; opacity: 0.2; display: block; }
     .q-empty p { font-size: 11.5px; line-height: 1.5; }
 
     /* ── ALL TASKS VIEW ── */
@@ -551,7 +551,7 @@ const S32 = 'width="32" height="32"';
 
 function iGrid()     { return svg('<rect x="3" y="3" width="7" height="7" rx="1"/><rect x="14" y="3" width="7" height="7" rx="1"/><rect x="3" y="14" width="7" height="7" rx="1"/><rect x="14" y="14" width="7" height="7" rx="1"/>'); }
 function iList()     { return svg('<line x1="8" y1="6" x2="21" y2="6"/><line x1="8" y1="12" x2="21" y2="12"/><line x1="8" y1="18" x2="21" y2="18"/><line x1="3" y1="6" x2="3.01" y2="6"/><line x1="3" y1="12" x2="3.01" y2="12"/><line x1="3" y1="18" x2="3.01" y2="18"/>'); }
-function iPlus()     { return svg('<line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/>'); }
+function iPlus()     { return svg('<line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/>', S14); }
 function iTrash()    { return svg('<polyline points="3 6 5 6 21 6"/><path d="M19 6l-1 14H6L5 6"/><path d="M10 11v6M14 11v6M9 6V4h6v2"/>', S13); }
 function iEdit()     { return svg('<path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"/><path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"/>', S13); }
 function iDownload() { return svg('<path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/>', S14); }
@@ -752,7 +752,7 @@ function vTasks() {
     </div>
     ${tasks.length === 0
       ? `<div style="text-align:center;padding:60px 0;color:var(--t-500)">
-           ${iList().replace(S14,'width="36" height="36"')}
+           ${iList().replace('viewBox', 'width="36" height="36" viewBox')}
            <p style="margin-top:10px;font-size:13px">No tasks match the filters</p>
          </div>`
       : tasks.map(t => {
